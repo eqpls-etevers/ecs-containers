@@ -75,6 +75,7 @@ def deploy(nowait=False):
         environment=[
         ],
         volumes=[
+            f'{path}/data.d:/data',
         ],
         healthcheck={
             'test': 'redis-cli --raw incr ping || exit 1',
