@@ -28,15 +28,22 @@ client = docker.from_env()
 title = config['default']['title']
 tenant = config['default']['tenant']
 version = config['default']['version']
+
+memory = config['default']['memory']
+
 hostname = config['default']['hostname']
 host = config['default']['host']
 port = config['default']['port']
+export = True if config['default']['export'].lower() == 'true' else False
+
 system_access_key = config['default']['system_access_key']
 system_secret_key = config['default']['system_secret_key']
 
 health_check_interval = int(config['default']['health_check_interval'])
 health_check_timeout = int(config['default']['health_check_timeout'])
 health_check_retries = int(config['default']['health_check_retries'])
+
+publish = os.path.abspath(config['service']['publish'])
 
 
 #===============================================================================
@@ -48,24 +55,23 @@ def build(): client.images.build(nocache=True, rm=True, path=f'{path}', tag=f'{t
 
 # deploy
 def deploy(nowait=False):
+    ports = {
+        f'{port}/tcp': (host, int(port))
+    } if export else {}
 
     container = client.containers.run(
         f'{tenant}/{title}:{version}',
         detach=True,
-        name=title,
+        name=f'{tenant}-{title}',
         hostname=hostname,
         network=tenant,
-        mem_limit='1g',
-        ports={
-            f'{port}/tcp': (host, int(port))
-        },
+        mem_limit=memory,
+        ports=ports,
         environment=[
         ],
         volumes=[
-            f'{path}/webconf/nginx.conf:/etc/nginx/nginx.conf',
-            f'{path}/webconf/cert.key:/etc/nginx/cert.key',
-            f'{path}/webconf/cert.crt:/etc/nginx/cert.crt',
-            f'{path}/webroot:/webroot'
+            f'{path}/nginx.conf:/etc/nginx/nginx.conf',
+            f'{publish}:/publish',
         ],
         healthcheck={
             'test': 'curl -kv https://127.0.0.1 || exit 1',

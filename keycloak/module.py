@@ -28,9 +28,14 @@ client = docker.from_env()
 title = config['default']['title']
 tenant = config['default']['tenant']
 version = config['default']['version']
+
+memory = config['default']['memory']
+
 hostname = config['default']['hostname']
 host = config['default']['host']
 port = config['default']['port']
+export = True if config['default']['export'].lower() == 'true' else False
+
 system_access_key = config['default']['system_access_key']
 system_secret_key = config['default']['system_secret_key']
 
@@ -68,6 +73,11 @@ def deploy(nowait=False):
     try: os.mkdir(f'{path}/back.d')
     except: pass
 
+    ports = {
+        f'{port}/tcp': (host, int(port)),
+        f'9000/tcp': (host, 9000) # Monitoring
+    } if export else {}
+
     with open(f'{path}/conf.d/keycloak.conf', 'w') as fd:
         fd.write(f"""
 db=postgres
@@ -85,14 +95,11 @@ proxy-headers=xforwarded
     container = client.containers.run(
         f'{tenant}/{title}:{version}',
         detach=True,
-        name=title,
+        name=f'{tenant}-{title}',
         hostname=hostname,
         network=tenant,
-        mem_limit='1g',
-        ports={
-            f'{port}/tcp': (host, int(port)),
-            f'9000/tcp': (host, 9000) # Monitoring
-        },
+        mem_limit=memory,
+        ports=ports,
         environment=[
             f'KEYCLOAK_ADMIN={keycloak_master_username}',
             f'KEYCLOAK_ADMIN_PASSWORD={keycloak_master_password}',
