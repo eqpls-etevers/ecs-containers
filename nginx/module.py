@@ -70,7 +70,7 @@ def deploy(nowait=False):
         environment=[
         ],
         volumes=[
-            f'{path}/nginx.conf:/etc/nginx/nginx.conf',
+            f'{path}/conf.d/nginx.conf:/etc/nginx/nginx.conf',
             f'{publish}:/publish',
         ],
         healthcheck={
@@ -117,8 +117,6 @@ def stop():
 # clean
 def clean():
     for container in client.containers.list(all=True, filters={'name': title}): container.remove(v=True, force=True)
-    shutil.rmtree(f'{path}/conf.d', ignore_errors=True)
-    shutil.rmtree(f'{path}/data.d', ignore_errors=True)
 
 
 # purge
@@ -128,8 +126,6 @@ def purge():
     except: pass
     try: client.images.remove(image=f'{tenant}/{title}:{version}', force=True)
     except: pass
-    shutil.rmtree(f'{path}/conf.d', ignore_errors=True)
-    shutil.rmtree(f'{path}/data.d', ignore_errors=True)
 
 
 # monitor
