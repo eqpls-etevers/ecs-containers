@@ -43,7 +43,7 @@ echo -n "join user ($ADMIN_USERNAME) to group (Users And Administrators) "
 /opt/keycloak/bin/kcadm.sh update -r $REALM users/$USER_UUID/groups/$GROUP_ADMIN_UUID
 echo "[ OK ]"
 
-# set minio openid
+# set eqpls openid
 ## create client scope
 echo -n "create client scope (eqpls-client-scope) "
 SCOPE_UUID=$(/opt/keycloak/bin/kcadm.sh create -r $REALM client-scopes -b "{\"name\":\"eqpls-client-scope\",\"description\":\"eqpls-client-scope\",\"type\":\"none\",\"protocol\":\"openid-connect\",\"attributes\":{\"display.on.consent.screen\":\"true\",\"consent.screen.text\":\"\",\"include.in.token.scope\":\"true\",\"gui.order\":\"\"}}" -i)
@@ -56,7 +56,7 @@ echo "[ OK ]"
 
 ## create client
 echo -n "create client (eqpls) "
-CLIENT_UUID=$(/opt/keycloak/bin/kcadm.sh create -r $REALM clients -b "{\"protocol\":\"openid-connect\",\"clientId\":\"eqpls\",\"name\":\"eqpls\",\"description\":\"eqpls\",\"publicClient\":false,\"authorizationServicesEnabled\":false,\"serviceAccountsEnabled\":false,\"implicitFlowEnabled\":false,\"directAccessGrantsEnabled\":true,\"standardFlowEnabled\":true,\"frontchannelLogout\":true,\"attributes\":{\"saml_idp_initiated_sso_url_name\":\"\",\"oauth2.device.authorization.grant.enabled\":false,\"oidc.ciba.grant.enabled\":false},\"alwaysDisplayInConsole\":true,\"rootUrl\":\"https://$DOMAIN\",\"baseUrl\":\"https://$DOMAIN\",\"redirectUris\":[\"*\"]}" -i)
+CLIENT_UUID=$(/opt/keycloak/bin/kcadm.sh create -r $REALM clients -b "{\"protocol\":\"openid-connect\",\"clientId\":\"eqpls\",\"name\":\"eqpls\",\"description\":\"eqpls\",\"publicClient\":false,\"authorizationServicesEnabled\":false,\"serviceAccountsEnabled\":false,\"implicitFlowEnabled\":false,\"directAccessGrantsEnabled\":true,\"standardFlowEnabled\":true,\"frontchannelLogout\":true,\"attributes\":{\"saml_idp_initiated_sso_url_name\":\"\",\"oauth2.device.authorization.grant.enabled\":false,\"oidc.ciba.grant.enabled\":false,\"post.logout.redirect.uris\":\"+\"},\"alwaysDisplayInConsole\":true,\"rootUrl\":\"https://$DOMAIN\",\"baseUrl\":\"https://$DOMAIN\",\"redirectUris\":[\"*\"]}" -i)
 echo "[ OK ]"
 
 ## set client option
@@ -64,7 +64,22 @@ echo -n "set client options to (eqpls) "
 /opt/keycloak/bin/kcadm.sh update -r $REALM clients/$CLIENT_UUID -s 'attributes."access.token.lifespan"="3600"' -s 'attributes."use.jwks.url"="true"' -s 'attributes."use.refresh.tokens"="true"' -s 'attributes."client.use.lightweight.access.token.enabled"="false"' -s 'attributes."client_credentials.use_refresh_token"="false"' -s 'attributes."acr.loa.map"="{}"' -s 'attributes."require.pushed.authorization.requests"="false"' -s 'attributes."tls.client.certificate.bound.access.tokens"="false"' -s 'attributes."display.on.consent.screen"="false"' -s 'attributes."token.response.type.bearer.lower-case"="false"'
 echo "[ OK ]"
 
-## set default client
+## set client scope to eqpls
 echo -n "set default client scope (eqpls-client-scope) to client (eqpls) "
+/opt/keycloak/bin/kcadm.sh update -r $REALM clients/$CLIENT_UUID/default-client-scopes/$SCOPE_UUID -b '{}'
+echo "[ OK ]"
+
+## create console client
+echo -n "create console client (eqpls-console) "
+CLIENT_UUID=$(/opt/keycloak/bin/kcadm.sh create -r $REALM clients -b "{\"protocol\":\"openid-connect\",\"clientId\":\"eqpls-console\",\"name\":\"eqpls-console\",\"description\":\"eqpls-console\",\"publicClient\":true,\"authorizationServicesEnabled\":false,\"serviceAccountsEnabled\":false,\"implicitFlowEnabled\":false,\"directAccessGrantsEnabled\":true,\"standardFlowEnabled\":true,\"frontchannelLogout\":true,\"attributes\":{\"saml_idp_initiated_sso_url_name\":\"\",\"oauth2.device.authorization.grant.enabled\":false,\"oidc.ciba.grant.enabled\":false,\"post.logout.redirect.uris\":\"+\"},\"alwaysDisplayInConsole\":true,\"rootUrl\":\"https://$DOMAIN\",\"baseUrl\":\"https://$DOMAIN\",\"redirectUris\":[\"*\"]}" -i)
+echo "[ OK ]"
+
+## set console client option
+echo -n "set console client options to (eqpls-console) "
+/opt/keycloak/bin/kcadm.sh update -r $REALM clients/$CLIENT_UUID -s 'attributes."access.token.lifespan"="3600"' -s 'attributes."use.refresh.tokens"="true"' -s 'attributes."client.use.lightweight.access.token.enabled"="false"' -s 'attributes."client_credentials.use_refresh_token"="false"' -s 'attributes."acr.loa.map"="{}"' -s 'attributes."require.pushed.authorization.requests"="false"' -s 'attributes."tls.client.certificate.bound.access.tokens"="false"' -s 'attributes."display.on.consent.screen"="false"' -s 'attributes."token.response.type.bearer.lower-case"="false"'
+echo "[ OK ]"
+
+## set client scope to eqpls-console
+echo -n "set default console client scope (eqpls-client-scope) to client (eqpls-console) "
 /opt/keycloak/bin/kcadm.sh update -r $REALM clients/$CLIENT_UUID/default-client-scopes/$SCOPE_UUID -b '{}'
 echo "[ OK ]"
