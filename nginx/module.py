@@ -95,13 +95,6 @@ def deploy(nowait=False):
     upstream %s { server %s; }
 """ % (location, upstream)
 
-#     locations += \
-# """
-# location ~^/(?<target>\\w+)/ {
-# proxy_pass http://$target:8080/$target/;
-# }
-# """
-
     locations += \
 """
         location %s {

@@ -79,7 +79,6 @@ def deploy(nowait=False):
             f'discovery.type=single-node'
         ],
         volumes=[
-            f'{path}/init.d:/init.d',
             f'{path}/conf.d:/conf.d',
             f'{path}/data.d:/usr/share/elasticsearch/data',
             f'{path}/back.d:/back.d'

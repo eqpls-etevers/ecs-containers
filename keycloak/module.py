@@ -105,7 +105,6 @@ proxy-headers=xforwarded
             f'KC_HEALTH_ENABLED=true',
         ],
         volumes=[
-            f'{path}/init.d:/init.d',
             f'{path}/conf.d/keycloak.conf:/opt/keycloak/conf/keycloak.conf',
             f'{path}/data.d:/data.d',
             f'{path}/back.d:/back.d',

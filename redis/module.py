@@ -78,7 +78,6 @@ def deploy(nowait=False):
         environment=[
         ],
         volumes=[
-            f'{path}/init.d:/init.d',
             f'{path}/conf.d:/conf.d',
             f'{path}/data.d:/data',
             f'{path}/back.d:/back.d',
